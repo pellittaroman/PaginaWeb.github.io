@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // configuración de Firebase aquí 👇
+    const firebaseConfig = {
+    apiKey: "AIzaSyC17sLsWgWUn2ZGPQY5pCHMMTo6NAlHp_w",
+    authDomain: "login-completo-2ab99.firebaseapp.com",
+    projectId: "login-completo-2ab99",
+    storageBucket: "login-completo-2ab99.firebasestorage.app",
+    messagingSenderId: "929492206299",
+    appId: "1:929492206299:web:ae081729093d16aa2102fe",
+    measurementId: "G-6WVD8WTEQQ"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Registro
+    document.addEventListener("DOMContentLoaded", () => {
+      const registerForm = document.getElementById("registerForm");
+
+      registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const nombre = registerForm.nombre.value.trim();
+        const telefono = registerForm.telefono.value.trim();
+        const direccion = registerForm.direccion.value.trim();
+        const email = registerForm.email.value.trim();
+        const password = registerForm.password.value.trim();
+
+        if (!nombre || !telefono || !direccion || !email || !password) {
+          alert("⚠️ Todos los campos son obligatorios.");
+          return;
+        }
+
+        try {
+          // Crear usuario en Authentication
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // Guardar datos adicionales en Firestore
+          await setDoc(doc(db, "usuarios", user.uid), {
+            nombre,
+            telefono,
+            direccion,
+            email,
+            createdAt: new Date()
+          });
+
+          alert("✅ Registro exitoso. Ya puedes iniciar sesión.");
+          window.location.href = "login.html";
+        } catch (error) {
+          alert("⚠️ Error: " + error.message);
+        }
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .register-card {
+      max-width: 450px;
+      width: 100%;
+      padding: 2rem;
+      border-radius: 1rem;
+      background: white;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="register-card">
+    <h3 class="text-center mb-4">Crear cuenta</h3>
+    <form id="registerForm">
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Juan Pérez" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="11 2345 6789" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="direccion" class="form-label">Dirección</label>
+        <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Av. Siempre Viva 742" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="ejemplo@correo.com" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="********" required>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100 mb-3">Registrarse</button>
+      <div class="text-center">
+        <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
